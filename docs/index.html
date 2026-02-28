@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agentic Historian</title>
+    <meta
+      name="description"
+      content="Agentic Historian is a Discord-first pipeline for historical source processing: HTR, metadata, entity linking, corpus analysis, and meta monitoring."
+    />
+    <meta name="repo-url" content="https://github.com/thodel/agentic-historian" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="site-header">
+        <div class="brand">Agentic Historian</div>
+        <nav class="site-nav">
+          <a href="#overview">Overview</a>
+          <a href="#pipeline">Pipeline</a>
+          <a href="#commands">Commands</a>
+          <a href="#outputs">Outputs</a>
+          <a href="#setup">Setup</a>
+        </nav>
+        <a class="cta ghost" href="#" data-repo-link>View Repo</a>
+      </header>
+
+      <main>
+        <section class="hero" id="top">
+          <div class="hero-copy" data-reveal>
+            <p class="eyebrow">Discord-first historical intelligence</p>
+            <h1>
+              Turn medieval documents into structured, searchable history with a
+              multi-agent pipeline.
+            </h1>
+            <p class="lead">
+              Agentic Historian combines HTR, source description, entity linking,
+              corpus analysis, and a meta agent for continuous improvement. All
+              outputs are reproducible, stored as Markdown and JSON, and ready
+              for scholarly review.
+            </p>
+            <div class="hero-actions">
+              <a class="cta" href="#setup">Get Started</a>
+              <a class="cta ghost" href="#pipeline">See the Agents</a>
+            </div>
+            <div class="hero-stats">
+              <div class="stat">
+                <span class="stat-value">5</span>
+                <span class="stat-label">Agents in sequence</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">HTR</span>
+                <span class="stat-label">Claude Vision core</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">JSON</span>
+                <span class="stat-label">Structured outputs</span>
+              </div>
+            </div>
+          </div>
+          <div class="hero-panel" data-reveal>
+            <div class="panel-card">
+              <div class="panel-title">Live Pipeline Snapshot</div>
+              <div class="panel-body">
+                <div class="pipeline-line">
+                  <span>Agent A</span>
+                  <span>HTR + QA</span>
+                </div>
+                <div class="pipeline-line">
+                  <span>Agent B</span>
+                  <span>Source Description</span>
+                </div>
+                <div class="pipeline-line">
+                  <span>Agent C</span>
+                  <span>Entities + Links</span>
+                </div>
+                <div class="pipeline-line">
+                  <span>Agent D</span>
+                  <span>Corpus Analysis</span>
+                </div>
+                <div class="pipeline-line">
+                  <span>Agent E</span>
+                  <span>Meta Monitoring</span>
+                </div>
+              </div>
+            </div>
+            <div class="panel-card muted">
+              <div class="panel-title">Key Themes</div>
+              <ul class="panel-list">
+                <li>Taxonomies of the social</li>
+                <li>Care practices and costs</li>
+                <li>Historian in the loop</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="overview" id="overview" data-reveal>
+          <div class="section-title">Overview</div>
+          <div class="overview-grid">
+            <div class="card">
+              <h3>Purpose-built for archival workflows</h3>
+              <p>
+                The bot is operated from Discord commands, keeps a strict audit
+                trail, and preserves the original phrasing of sources. It is
+                designed for late medieval German and Latin administrative
+                documents.
+              </p>
+            </div>
+            <div class="card">
+              <h3>Knowledge hub powered</h3>
+              <p>
+                Controlled vocabularies, local person and place registries, and
+                document type lists shape every analysis step. Historians can
+                update the hub directly from Discord.
+              </p>
+            </div>
+            <div class="card">
+              <h3>Transparent outputs</h3>
+              <p>
+                Every agent writes human-readable Markdown and machine-readable
+                JSON. Researchers can review, edit, and integrate results into
+                downstream pipelines.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section class="pipeline" id="pipeline" data-reveal>
+          <div class="section-title">Pipeline</div>
+          <div class="agent-grid">
+            <div class="agent-card">
+              <div class="agent-tag">Agent A</div>
+              <h3>Text Recognition (HTR)</h3>
+              <p>
+                Uses Claude Vision with QA feedback loops to transcribe
+                manuscripts while preserving original spelling and line breaks.
+              </p>
+            </div>
+            <div class="agent-card">
+              <div class="agent-tag">Agent B</div>
+              <h3>Source Description</h3>
+              <p>
+                Classifies document types, extracts controlled keywords, and
+                produces a formal description for archival records.
+              </p>
+            </div>
+            <div class="agent-card">
+              <div class="agent-tag">Agent C</div>
+              <h3>Entity Extraction</h3>
+              <p>
+                Finds people, places, roles, and care actors, linking them to the
+                Knowledge Hub and Wikidata when possible.
+              </p>
+            </div>
+            <div class="agent-card">
+              <div class="agent-tag">Agent D</div>
+              <h3>Corpus Analysis</h3>
+              <p>
+                Builds statistics, topic summaries, social taxonomy patterns,
+                and care analyses across the corpus with Voyant integration.
+              </p>
+            </div>
+            <div class="agent-card">
+              <div class="agent-tag">Agent E</div>
+              <h3>Meta Monitoring</h3>
+              <p>
+                Tracks token usage, cost, storage growth, and recommends
+                operational improvements to keep the system efficient.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section class="commands" id="commands" data-reveal>
+          <div class="section-title">Discord Commands</div>
+          <div class="command-grid">
+            <div class="card">
+              <h3>Pipeline</h3>
+              <pre><code>/process [file]
+/hot_folder
+/corpus [name]
+/report</code></pre>
+            </div>
+            <div class="card">
+              <h3>Agents</h3>
+              <pre><code>/agent a [file]
+/agent b [doc_id]
+/agent c [doc_id]
+/agent d
+/agent e</code></pre>
+            </div>
+            <div class="card">
+              <h3>Knowledge Hub</h3>
+              <pre><code>/hub list
+/hub add_keyword [term]
+/hub add_type [type]
+/hub add_person [name]
+/hub add_place [name]</code></pre>
+            </div>
+          </div>
+        </section>
+
+        <section class="outputs" id="outputs" data-reveal>
+          <div class="section-title">Outputs</div>
+          <div class="output-grid">
+            <div class="card">
+              <h3>Stored results</h3>
+              <p>
+                The pipeline writes Markdown and JSON artifacts to the data
+                folder. Each run is reproducible and ready for hand-curation.
+              </p>
+              <pre><code>data/
+  transcriptions/
+  descriptions/
+  outputs/
+    *_entities.json
+    corpus_*/
+    meta_report.md</code></pre>
+            </div>
+            <div class="card">
+              <h3>Research focus</h3>
+              <ul class="panel-list">
+                <li>Social taxonomy terms</li>
+                <li>Care economies and actors</li>
+                <li>Structured metadata for archives</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="setup" id="setup" data-reveal>
+          <div class="section-title">Setup</div>
+          <div class="setup-grid">
+            <div class="card">
+              <h3>Local setup</h3>
+              <pre><code>python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+python bot.py</code></pre>
+            </div>
+            <div class="card">
+              <h3>GitHub Pages</h3>
+              <p>
+                This site lives in <strong>/docs</strong>. Enable GitHub Pages
+                with the main branch and the /docs folder.
+              </p>
+              <p class="note">
+                Commit the docs directory, then configure Pages in the repository
+                settings to publish the site.
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div>
+          Agentic Historian is a Discord-controlled system for historical
+          analysis. Built for transparency, reproducibility, and collaboration.
+        </div>
+        <div class="footer-links">
+          <a href="#top">Back to top</a>
+          <a href="#" data-repo-link>Repository</a>
+        </div>
+      </footer>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

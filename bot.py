@@ -401,12 +401,12 @@ async def hot_folder_watcher():
     logger.info("[HotFolder] Watcher started")
     while True:
         await asyncio.sleep(60)  # check every 60 seconds
-        images = [
+        files = [
             p for p in config.HOT_FOLDER.iterdir()
-            if p.is_file() and p.suffix.lower() in config.IMAGE_EXTENSIONS
+            if p.is_file() and p.suffix.lower() in (config.IMAGE_EXTENSIONS | config.PDF_EXTENSIONS)
         ]
-        if images and orc:
-            logger.info(f"[HotFolder] {len(images)} new file(s) detected – processing…")
+        if files and orc:
+            logger.info(f"[HotFolder] {len(files)} new file(s) detected – processing…")
             await orc.process_hot_folder()
 
 

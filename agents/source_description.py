@@ -157,7 +157,11 @@ class SourceDescriptionAgent:
         # ── Step B-d: Visual description (requires image) ──────────────────
         visual = {}
         formal = {}
-        if image_path and image_path.exists():
+        if (
+            image_path
+            and image_path.exists()
+            and image_path.suffix.lower() in config.IMAGE_EXTENSIONS
+        ):
             visual_raw = await ask_structured(
                 SYSTEM_VISUAL, "Describe the visual properties of this manuscript.",
                 image_path=image_path,

@@ -16,9 +16,10 @@ CORPUS_DIR        = Path(os.getenv("CORPUS_DIR",         DATA_DIR / "corpus"))
 TRANSCRIPTION_DIR = Path(os.getenv("TRANSCRIPTION_DIR", DATA_DIR / "transcriptions"))
 DESCRIPTION_DIR   = Path(os.getenv("DESCRIPTION_DIR",   DATA_DIR / "descriptions"))
 KNOWLEDGE_HUB_DIR = Path(os.getenv("KNOWLEDGE_HUB_DIR", BASE_DIR / "knowledge_hub" / "data"))
+TMP_DIR           = Path(os.getenv("TMP_DIR",           DATA_DIR / "tmp"))
 
 for _p in [HOT_FOLDER, OUTPUT_DIR, CORPUS_DIR, TRANSCRIPTION_DIR,
-           DESCRIPTION_DIR, KNOWLEDGE_HUB_DIR]:
+           DESCRIPTION_DIR, KNOWLEDGE_HUB_DIR, TMP_DIR]:
     _p.mkdir(parents=True, exist_ok=True)
 
 # ── Discord ────────────────────────────────────────────────────────────────

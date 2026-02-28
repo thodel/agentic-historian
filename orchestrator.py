@@ -48,21 +48,28 @@ class Orchestrator:
 
     # ── Single-document pipeline ───────────────────────────────────────────
 
-    async def run_full_pipeline(
+    async def _run_full_pipeline(
         self,
-        image_path: Path,
-        run_corpus: bool = False,
+        doc_id: str,
+        image_path: Optional[Path],
+        pages: Optional[list[Path]],
+        run_corpus: bool,
     ) -> PipelineResult:
-        doc_id = image_path.stem
         result = PipelineResult(doc_id=doc_id)
+        label = image_path.name if image_path else doc_id
 
-        await self._status(f"🔄 Starting full pipeline for `{image_path.name}`…")
+        await self._status(f"🔄 Starting full pipeline for `{label}`…")
 
         # Agent A
         t0 = time.monotonic()
         try:
             await self._status("📜 **Agent A** – Running HTR…")
-            result.htr = await self.agent_a.process_file(image_path)
+            if pages:
+                result.htr = await self.agent_a.process_pages(doc_id, pages)
+            elif image_path:
+                result.htr = await self.agent_a.process_file(image_path)
+            else:
+                raise ValueError("No input provided for Agent A.")
             self.agent_e.record(
                 "TextRecognitionAgent", doc_id,
                 duration_seconds=time.monotonic() - t0,
@@ -72,11 +79,17 @@ class Orchestrator:
             await self._status(f"❌ Agent A error: {e}")
             return result
 
+        preview_image = None
+        if result.htr and result.htr.preview_image_path:
+            preview_image = result.htr.preview_image_path
+        elif image_path and image_path.suffix.lower() in config.IMAGE_EXTENSIONS:
+            preview_image = image_path
+
         # Agent B
         t0 = time.monotonic()
         try:
             await self._status("📋 **Agent B** – Generating source description…")
-            result.description = await self.agent_b.process(doc_id, image_path)
+            result.description = await self.agent_b.process(doc_id, preview_image)
             self.agent_e.record(
                 "SourceDescriptionAgent", doc_id,
                 duration_seconds=time.monotonic() - t0,
@@ -115,6 +128,32 @@ class Orchestrator:
         await self._status("✅ Pipeline complete!")
         return result
 
+    async def run_full_pipeline(
+        self,
+        image_path: Path,
+        run_corpus: bool = False,
+    ) -> PipelineResult:
+        return await self._run_full_pipeline(
+            doc_id=image_path.stem,
+            image_path=image_path,
+            pages=None,
+            run_corpus=run_corpus,
+        )
+
+    async def run_full_pipeline_group(
+        self,
+        doc_id: str,
+        pages: list[Path],
+        run_corpus: bool = False,
+    ) -> PipelineResult:
+        preview = pages[0] if pages else None
+        return await self._run_full_pipeline(
+            doc_id=doc_id,
+            image_path=preview,
+            pages=pages,
+            run_corpus=run_corpus,
+        )
+
     # ── Individual agents ──────────────────────────────────────────────────
 
     async def run_agent_a(self, image_path: Path) -> Optional[HTRResult]:
@@ -139,22 +178,33 @@ class Orchestrator:
     # ── Folder pipeline ────────────────────────────────────────────────────
 
     async def process_hot_folder(self) -> list[PipelineResult]:
-        images = [
+        files = [
             p for p in config.HOT_FOLDER.iterdir()
-            if p.suffix.lower() in config.IMAGE_EXTENSIONS
+            if p.is_file()
+            and p.suffix.lower() in (config.IMAGE_EXTENSIONS | config.PDF_EXTENSIONS)
         ]
-        if not images:
+        if not files:
             await self._status("📂 Hot folder is empty.")
             return []
 
         results = []
-        for img in images:
-            result = await self.run_full_pipeline(img)
+        done_dir = config.HOT_FOLDER / "processed"
+        done_dir.mkdir(exist_ok=True)
+
+        pdfs = [p for p in files if p.suffix.lower() in config.PDF_EXTENSIONS]
+        images = [p for p in files if p.suffix.lower() in config.IMAGE_EXTENSIONS]
+        groups = self.agent_a.group_files(images)
+
+        for doc_id, pages in groups.items():
+            result = await self.run_full_pipeline_group(doc_id, pages)
             results.append(result)
-            # Move processed file
-            done_dir = config.HOT_FOLDER / "processed"
-            done_dir.mkdir(exist_ok=True)
-            img.rename(done_dir / img.name)
+            for page in pages:
+                page.rename(done_dir / page.name)
+
+        for pdf in pdfs:
+            result = await self.run_full_pipeline(pdf)
+            results.append(result)
+            pdf.rename(done_dir / pdf.name)
 
         return results
 

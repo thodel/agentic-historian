@@ -64,6 +64,7 @@ class HTRResult:
     qa_verdict: str
     qa_issues: list[str] = field(default_factory=list)
     output_path: Optional[Path] = None
+    preview_image_path: Optional[Path] = None
 
 
 # ── Helper ─────────────────────────────────────────────────────────────────
@@ -94,6 +95,10 @@ def _group_files(paths: list[Path]) -> dict[str, list[Path]]:
     return groups
 
 
+def _is_pdf(path: Path) -> bool:
+    return path.suffix.lower() in config.PDF_EXTENSIONS
+
+
 # ── Main Agent ─────────────────────────────────────────────────────────────
 
 class TextRecognitionAgent:
@@ -101,11 +106,33 @@ class TextRecognitionAgent:
 
     name = "TextRecognitionAgent"
 
-    async def process_file(self, image_path: Path) -> HTRResult:
-        """Process a single image file through HTR + QA pipeline."""
-        doc_id = image_path.stem
-        logger.info(f"[AgentA] Processing: {image_path.name}")
+    def group_files(self, paths: list[Path]) -> dict[str, list[Path]]:
+        return _group_files(paths)
 
+    def _pdf_to_images(self, pdf_path: Path) -> list[Path]:
+        try:
+            import fitz
+        except ImportError as exc:
+            raise RuntimeError("PyMuPDF (fitz) is required for PDF processing.") from exc
+
+        out_dir = config.TMP_DIR / "pdf_pages" / pdf_path.stem
+        out_dir.mkdir(parents=True, exist_ok=True)
+        for old in out_dir.glob("*.png"):
+            old.unlink()
+
+        images: list[Path] = []
+        with fitz.open(pdf_path) as doc:
+            for idx, page in enumerate(doc):
+                pix = page.get_pixmap(matrix=fitz.Matrix(2, 2))
+                out_path = out_dir / f"{pdf_path.stem}_p{idx + 1}.png"
+                pix.save(out_path)
+                images.append(out_path)
+        return images
+
+    async def _transcribe_image(
+        self,
+        image_path: Path,
+    ) -> tuple[str, float, int, str, list[str]]:
         attempt = 0
         last_issues: list[str] = []
         transcription = ""
@@ -127,7 +154,6 @@ class TextRecognitionAgent:
                     agent_name=self.name,
                 )
             else:
-                # Refined attempt – include previous issues
                 user_msg = (
                     f"Previous transcription attempt had these issues: "
                     f"{json.dumps(last_issues)}. "
@@ -142,9 +168,8 @@ class TextRecognitionAgent:
                 )
 
             transcription = _extract_transcription(raw)
-            confidence    = _extract_confidence(raw)
+            confidence = _extract_confidence(raw)
 
-            # ── QA step ────────────────────────────────────────────────────
             qa_prompt = (
                 f"Image: {image_path.name}\n\n"
                 f"Transcription draft (attempt {attempt}):\n{transcription}"
@@ -163,11 +188,10 @@ class TextRecognitionAgent:
                 qa = {"score": confidence, "issues": [], "verdict": "ACCEPT",
                       "corrected_passages": {}}
 
-            qa_score   = float(qa.get("score", confidence))
+            qa_score = float(qa.get("score", confidence))
             qa_verdict = qa.get("verdict", "ACCEPT")
             last_issues = qa.get("issues", [])
 
-            # Apply corrections from QA
             for orig, corrected in qa.get("corrected_passages", {}).items():
                 transcription = transcription.replace(orig, corrected)
 
@@ -179,7 +203,56 @@ class TextRecognitionAgent:
             if qa_score >= config.HTR_QUALITY_THRESHOLD or qa_verdict == "ACCEPT":
                 break
 
-        # ── Save output ────────────────────────────────────────────────────
+        return transcription, confidence, attempt, qa_verdict, last_issues
+
+    async def process_pages(self, doc_id: str, pages: list[Path]) -> HTRResult:
+        logger.info(f"[AgentA] Processing document '{doc_id}' ({len(pages)} page(s))")
+        combined_parts: list[str] = []
+        total_confidence = 0.0
+        total_attempts = 0
+        qa_verdict = "ACCEPT"
+        all_issues: list[str] = []
+
+        for page in pages:
+            transcription, confidence, attempts, verdict, issues = await self._transcribe_image(page)
+            combined_parts.append(f"--- Page: {page.name} ---\n\n{transcription}")
+            total_confidence += confidence
+            total_attempts += attempts
+            all_issues.extend(issues)
+            if verdict != "ACCEPT":
+                qa_verdict = verdict
+
+        combined_transcription = "\n\n".join(combined_parts)
+        out_path = config.TRANSCRIPTION_DIR / f"{doc_id}.txt"
+        out_path.write_text(combined_transcription, encoding="utf-8")
+        logger.info(f"[AgentA] Saved transcription → {out_path}")
+
+        avg_confidence = total_confidence / max(len(pages), 1)
+        return HTRResult(
+            doc_id=doc_id,
+            transcription=combined_transcription,
+            confidence=avg_confidence,
+            model_used=config.CLAUDE_VISION_MODEL,
+            attempts=total_attempts,
+            qa_verdict=qa_verdict,
+            qa_issues=all_issues,
+            output_path=out_path,
+            preview_image_path=pages[0] if pages else None,
+        )
+
+    async def process_file(self, image_path: Path) -> HTRResult:
+        """Process a single image or PDF file through HTR + QA pipeline."""
+        doc_id = image_path.stem
+        logger.info(f"[AgentA] Processing: {image_path.name}")
+
+        if _is_pdf(image_path):
+            pages = self._pdf_to_images(image_path)
+            if not pages:
+                raise ValueError(f"No pages extracted from PDF: {image_path}")
+            return await self.process_pages(doc_id, pages)
+
+        transcription, confidence, attempt, qa_verdict, last_issues = await self._transcribe_image(image_path)
+
         out_path = config.TRANSCRIPTION_DIR / f"{doc_id}.txt"
         out_path.write_text(transcription, encoding="utf-8")
         logger.info(f"[AgentA] Saved transcription → {out_path}")
@@ -193,41 +266,32 @@ class TextRecognitionAgent:
             qa_verdict=qa_verdict,
             qa_issues=last_issues,
             output_path=out_path,
+            preview_image_path=image_path,
         )
 
     async def process_folder(self, folder: Path) -> list[HTRResult]:
         """Process all images in a hot folder, grouped by document."""
-        images = [
+        files = [
             p for p in folder.iterdir()
-            if p.suffix.lower() in config.IMAGE_EXTENSIONS
+            if p.suffix.lower() in (config.IMAGE_EXTENSIONS | config.PDF_EXTENSIONS)
         ]
-        if not images:
-            logger.warning(f"[AgentA] No images found in {folder}")
+        if not files:
+            logger.warning(f"[AgentA] No images or PDFs found in {folder}")
             return []
 
+        pdfs = [p for p in files if _is_pdf(p)]
+        images = [p for p in files if p.suffix.lower() in config.IMAGE_EXTENSIONS]
         groups = _group_files(images)
         results = []
 
         for doc_stem, pages in groups.items():
-            logger.info(f"[AgentA] Document '{doc_stem}' has {len(pages)} page(s)")
-            # For multi-page docs, process each page and concatenate
-            combined_transcript = ""
-            final_result = None
+            if len(pages) > 1:
+                results.append(await self.process_pages(doc_stem, pages))
+            else:
+                results.append(await self.process_file(pages[0]))
 
-            for page in pages:
-                result = await self.process_file(page)
-                combined_transcript += f"\n\n--- Page: {page.name} ---\n\n"
-                combined_transcript += result.transcription
-                final_result = result
-
-            if len(pages) > 1 and final_result:
-                combined_path = config.TRANSCRIPTION_DIR / f"{doc_stem}.txt"
-                combined_path.write_text(combined_transcript, encoding="utf-8")
-                final_result.output_path = combined_path
-                final_result.transcription = combined_transcript
-
-            if final_result:
-                results.append(final_result)
+        for pdf in pdfs:
+            results.append(await self.process_file(pdf))
 
         return results
 
