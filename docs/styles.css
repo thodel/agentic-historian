@@ -139,6 +139,28 @@ main, header, footer {
   line-height: 1.1;
 }
 
+.hero-title {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 18px;
+}
+
+.hero-seal {
+  width: 96px;
+  height: 96px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.7);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 16px 30px rgba(31, 26, 23, 0.2);
+}
+
+.hero-seal img {
+  width: 70px;
+  height: 70px;
+}
+
 .lead {
   font-size: 1.1rem;
   color: var(--ink-soft);
@@ -356,6 +378,20 @@ code {
 
   .hero-stats {
     grid-template-columns: 1fr;
+  }
+
+  .hero-title {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-seal {
+    width: 72px;
+    height: 72px;
+  }
+
+  .hero-seal img {
+    width: 52px;
+    height: 52px;
   }
 
   .site-footer {

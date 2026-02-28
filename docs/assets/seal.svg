@@ -1,0 +1,16 @@
+<svg width="160" height="160" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Historical wax seal</title>
+  <desc id="desc">A stylized wax seal with concentric rings and a heraldic mark.</desc>
+  <defs>
+    <radialGradient id="wax" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#c4573b" />
+      <stop offset="55%" stop-color="#b24b34" />
+      <stop offset="100%" stop-color="#7d2f1f" />
+    </radialGradient>
+  </defs>
+  <circle cx="80" cy="80" r="68" fill="url(#wax)" />
+  <circle cx="80" cy="80" r="54" fill="none" stroke="#f0c7a6" stroke-width="4" opacity="0.7" />
+  <circle cx="80" cy="80" r="40" fill="none" stroke="#f5ddc8" stroke-width="2" opacity="0.8" />
+  <path d="M80 48 l10 20 22 3 -16 15 4 22 -20 -11 -20 11 4 -22 -16 -15 22 -3z" fill="#f7e3d2" opacity="0.75" />
+  <circle cx="80" cy="80" r="10" fill="#f5ddc8" opacity="0.8" />
+</svg>
