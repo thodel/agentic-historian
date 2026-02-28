@@ -1,0 +1,40 @@
+# Discord Bot
+discord.py>=2.3.0
+
+# Anthropic Claude API
+anthropic>=0.40.0
+
+# HuggingFace Hub (storage)
+huggingface_hub>=0.20.0
+datasets>=2.14.0
+
+# Document / Image processing
+Pillow>=10.0.0
+PyMuPDF>=1.23.0          # PDF handling (fitz)
+requests>=2.31.0
+
+# NLP / NER
+spacy>=3.7.0
+# run: python -m spacy download de_core_news_lg  (German medieval texts)
+# run: python -m spacy download la_core_web_lg   (Latin)
+
+# Corpus analysis
+voyant-tools-api>=0.1.0  # optional – we also build direct links
+nltk>=3.8.1
+collections-extended>=2.0.2
+
+# File watching (hot folder)
+watchdog>=4.0.0
+
+# Data handling
+pandas>=2.1.0
+markdown>=3.5.0
+pyyaml>=6.0.1
+python-dotenv>=1.0.0
+
+# Utilities
+aiohttp>=3.9.0
+aiofiles>=23.2.0
+tenacity>=8.2.3          # retry logic for API calls
+rich>=13.7.0             # pretty terminal output
+loguru>=0.7.2            # structured logging
