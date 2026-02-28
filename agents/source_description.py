@@ -165,7 +165,7 @@ class SourceDescriptionAgent:
             visual_raw = await ask_structured(
                 SYSTEM_VISUAL, "Describe the visual properties of this manuscript.",
                 image_path=image_path,
-                model=config.CLAUDE_VISION_MODEL,
+                model=config.GEMINI_VISION_MODEL,
                 agent_name=f"{self.name}:visual",
             )
             visual = json.loads(visual_raw)

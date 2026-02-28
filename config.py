@@ -30,7 +30,10 @@ DISCORD_CHANNEL_HISTORIAN  = os.getenv("DISCORD_CHANNEL_HISTORIAN", "historian-g
 # ── Anthropic ──────────────────────────────────────────────────────────────
 ANTHROPIC_API_KEY   = os.getenv("ANTHROPIC_API_KEY", "")
 CLAUDE_MODEL        = os.getenv("CLAUDE_MODEL",        "claude-opus-4-5")
-CLAUDE_VISION_MODEL = os.getenv("CLAUDE_VISION_MODEL", "claude-opus-4-5")
+
+# ── Gemini (Vision) ────────────────────────────────────────────────────────
+GEMINI_API_KEY      = os.getenv("GEMINI_API_KEY", "")
+GEMINI_VISION_MODEL = os.getenv("GEMINI_VISION_MODEL", "gemini-3.1-pro")
 
 # ── HuggingFace ────────────────────────────────────────────────────────────
 HF_TOKEN   = os.getenv("HF_TOKEN",   "")

@@ -150,7 +150,7 @@ class TextRecognitionAgent:
                     SYSTEM_HTR,
                     user_msg,
                     image_path=image_path,
-                    model=config.CLAUDE_VISION_MODEL,
+                    model=config.GEMINI_VISION_MODEL,
                     agent_name=self.name,
                 )
             else:
@@ -163,7 +163,7 @@ class TextRecognitionAgent:
                     SYSTEM_HTR_REFINED,
                     user_msg,
                     image_path=image_path,
-                    model=config.CLAUDE_VISION_MODEL,
+                    model=config.GEMINI_VISION_MODEL,
                     agent_name=self.name,
                 )
 
@@ -178,7 +178,7 @@ class TextRecognitionAgent:
                 SYSTEM_QA,
                 qa_prompt,
                 image_path=image_path,
-                model=config.CLAUDE_MODEL,
+                model=config.GEMINI_VISION_MODEL,
                 agent_name=f"{self.name}:QA",
             )
 
@@ -232,7 +232,7 @@ class TextRecognitionAgent:
             doc_id=doc_id,
             transcription=combined_transcription,
             confidence=avg_confidence,
-            model_used=config.CLAUDE_VISION_MODEL,
+            model_used=config.GEMINI_VISION_MODEL,
             attempts=total_attempts,
             qa_verdict=qa_verdict,
             qa_issues=all_issues,
@@ -261,7 +261,7 @@ class TextRecognitionAgent:
             doc_id=doc_id,
             transcription=transcription,
             confidence=confidence,
-            model_used=config.CLAUDE_VISION_MODEL,
+            model_used=config.GEMINI_VISION_MODEL,
             attempts=attempt,
             qa_verdict=qa_verdict,
             qa_issues=last_issues,

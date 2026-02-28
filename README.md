@@ -8,7 +8,7 @@ Ein agentisches KI-System für die historische Quellenerschliessung, gesteuert �
 Discord Bot (bot.py)
     │
     └── Orchestrator (orchestrator.py)
-            ├── Agent A – Text Recognition (HTR via Claude Vision)
+            ├── Agent A – Text Recognition (HTR via Gemini 3.1 Pro Vision)
             ├── Agent B – Source Description (Classification, Keywords, Visual)
             ├── Agent C – Entity Extraction & Linking (NER + Wikidata/GND)
             ├── Agent D – Corpus Analysis (Topics, Taxonomien, Care, Voyant)
@@ -23,7 +23,8 @@ Discord Bot (bot.py)
 
 - Python 3.11+
 - Discord Bot Token ([discord.com/developers](https://discord.com/developers))
-- Anthropic API Key ([console.anthropic.com](https://console.anthropic.com))
+- Anthropic API Key ([console.anthropic.com](https://console.anthropic.com)) – für Textmodelle
+- Gemini API Key (Google AI Studio) – für Vision/HTR
 - Optional: HuggingFace Token, GitHub Token
 
 ### 2. Installation
@@ -151,7 +152,7 @@ data/
 ## Anpassungen & Erweiterungen
 
 ### Eigenes HTR-Modell
-In `agents/text_recognition.py` kann in `process_file()` alternativ ein Transkribus-API-Aufruf oder ein lokales OCR4all-Modell eingebunden werden. Das aktuelle System nutzt Claude Vision als Fallback für alle Schrifttypen.
+In `agents/text_recognition.py` kann in `process_file()` alternativ ein Transkribus-API-Aufruf oder ein lokales OCR4all-Modell eingebunden werden. Das aktuelle System nutzt Gemini 3.1 Pro (Vision) als Fallback für alle Schrifttypen.
 
 ### HuggingFace Upload
 In `storage/hf_storage.py` (erweiterbar) kann der Upload der Transkriptionen auf ein HuggingFace Dataset ergänzt werden.
