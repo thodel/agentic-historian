@@ -15,7 +15,7 @@ import aiohttp
 from loguru import logger
 
 import config
-from utils.claude_client import ask_structured
+from utils.llm_client import ask_structured
 from knowledge_hub.hub import KnowledgeHub
 
 # ── Prompts ────────────────────────────────────────────────────────────────
@@ -195,7 +195,7 @@ class EntityAgent:
                     entity.wikidata_id = wd["id"]
                     entity.link_confidence = 0.7
 
-            # Ask Claude for disambiguation if needed
+            # Ask Gemini for disambiguation if needed
             if entity.confidence > 0.7 and not entity.wikidata_id and not entity.custom_hub_id:
                 link_prompt = (
                     f"Entity: {entity.text} (type: {entity.type})\n"

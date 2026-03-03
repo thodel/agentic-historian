@@ -3,9 +3,9 @@ agents/text_recognition.py – Agent A: Text Recognition (HTR)
 
 Pipeline:
   A-a  Group files by document stem → treat as "one document"
-  A-b  Run HTR via Claude Vision (simulates model selection)
+  A-b  Run HTR via Gemini Vision (simulates model selection)
   A-c  Save transcription as .txt + upload to HuggingFace
-  A-d  Quality-check with a second Claude call
+  A-d  Quality-check with a second Gemini call
   A-e  If quality < threshold → retry with adjusted prompt
 """
 import asyncio
@@ -18,7 +18,7 @@ from typing import Optional
 from loguru import logger
 
 import config
-from utils.claude_client import ask, ask_structured
+from utils.llm_client import ask, ask_structured
 
 # ── Prompts ────────────────────────────────────────────────────────────────
 

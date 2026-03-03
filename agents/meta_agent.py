@@ -16,9 +16,9 @@ from typing import Optional
 from loguru import logger
 
 import config
-from utils.claude_client import ask
+from utils.llm_client import ask
 
-# ── Cost estimates (rough, Claude Opus) ───────────────────────────────────
+# ── Cost estimates (rough, Gemini Pro) ────────────────────────────────────
 # Prices per 1M tokens (adjust to your actual model/tier)
 COST_PER_1M_INPUT  = 15.00   # USD
 COST_PER_1M_OUTPUT = 75.00   # USD
@@ -155,7 +155,7 @@ class MetaAgent:
         total_cost   = sum(r.cost_usd for r in self._runs)
         total_dur    = sum(r.duration_seconds for r in self._runs)
 
-        # Ask Claude to suggest improvements
+        # Ask Gemini to suggest improvements
         context = (
             f"Agentic Historian system status:\n"
             f"Total agent runs: {len(self._runs)}\n"

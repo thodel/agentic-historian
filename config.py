@@ -27,12 +27,9 @@ DISCORD_BOT_TOKEN          = os.getenv("DISCORD_BOT_TOKEN", "")
 DISCORD_GUILD_ID           = int(os.getenv("DISCORD_GUILD_ID", 0)) or None
 DISCORD_CHANNEL_HISTORIAN  = os.getenv("DISCORD_CHANNEL_HISTORIAN", "historian-general")
 
-# ── Anthropic ──────────────────────────────────────────────────────────────
-ANTHROPIC_API_KEY   = os.getenv("ANTHROPIC_API_KEY", "")
-CLAUDE_MODEL        = os.getenv("CLAUDE_MODEL",        "claude-opus-4-5")
-
-# ── Gemini (Vision) ────────────────────────────────────────────────────────
+# ── Gemini (Text + Vision) ────────────────────────────────────────────────
 GEMINI_API_KEY      = os.getenv("GEMINI_API_KEY", "")
+GEMINI_TEXT_MODEL   = os.getenv("GEMINI_TEXT_MODEL",   "gemini-3.1-pro")
 GEMINI_VISION_MODEL = os.getenv("GEMINI_VISION_MODEL", "gemini-3.1-pro")
 
 # ── HuggingFace ────────────────────────────────────────────────────────────

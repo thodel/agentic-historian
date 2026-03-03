@@ -17,7 +17,7 @@ from typing import Optional
 from loguru import logger
 
 import config
-from utils.claude_client import ask, ask_structured
+from utils.llm_client import ask, ask_structured
 
 # ── Prompts ────────────────────────────────────────────────────────────────
 

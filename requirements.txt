@@ -1,9 +1,6 @@
 # Discord Bot
 discord.py>=2.3.0
 
-# Anthropic Claude API
-anthropic>=0.40.0
-
 # Gemini API
 google-generativeai>=0.8.3
 

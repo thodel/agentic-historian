@@ -333,7 +333,7 @@ async def cmd_status(interaction: discord.Interaction):
         f"**Transcriptions:** {len(transcriptions)}\n"
         f"**Descriptions:** {len(descriptions)}\n"
         f"**Hot folder queue:** {len(hot_files)} file(s)\n"
-        f"**Model:** `{config.CLAUDE_MODEL}`\n\n"
+        f"**Models:** text=`{config.GEMINI_TEXT_MODEL}`, vision=`{config.GEMINI_VISION_MODEL}`\n\n"
         f"{orc.hub_summary()}"
     )
     await interaction.response.send_message(msg)

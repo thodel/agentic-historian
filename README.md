@@ -23,8 +23,7 @@ Discord Bot (bot.py)
 
 - Python 3.11+
 - Discord Bot Token ([discord.com/developers](https://discord.com/developers))
-- Anthropic API Key ([console.anthropic.com](https://console.anthropic.com)) – für Textmodelle
-- Gemini API Key (Google AI Studio) – für Vision/HTR
+- Gemini API Key (Google AI Studio) – für Text + Vision/HTR
 - Optional: HuggingFace Token, GitHub Token
 
 ### 2. Installation

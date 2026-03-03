@@ -1,11 +1,10 @@
 """
-utils/claude_client.py – Claude (text) + Gemini (vision) client with retry & logging
+utils/llm_client.py – Gemini (text + vision) client with retry & logging
 """
 import asyncio
 from pathlib import Path
 from typing import Optional
 
-import anthropic
 import google.generativeai as genai
 from tenacity import retry, stop_after_attempt, wait_exponential
 from loguru import logger
@@ -13,15 +12,7 @@ from PIL import Image
 
 import config
 
-_client: Optional[anthropic.AsyncAnthropic] = None
 _gemini_configured = False
-
-
-def get_client() -> anthropic.AsyncAnthropic:
-    global _client
-    if _client is None:
-        _client = anthropic.AsyncAnthropic(api_key=config.ANTHROPIC_API_KEY)
-    return _client
 
 
 def _configure_gemini():
@@ -36,24 +27,33 @@ def _configure_gemini():
 
 def _get_gemini_model(model: Optional[str] = None) -> genai.GenerativeModel:
     _configure_gemini()
-    return genai.GenerativeModel(model or config.GEMINI_VISION_MODEL)
+    return genai.GenerativeModel(model or config.GEMINI_TEXT_MODEL)
+
+
+def _build_prompt(system: str, user_text: str) -> str:
+    if system:
+        return f"{system}\n\n{user_text}".strip()
+    return user_text
 
 
 async def _ask_gemini(
-    system: str,
-    user_text: str,
-    image_path: Path,
+    prompt: str,
+    image_path: Optional[Path],
     model: Optional[str],
     max_tokens: int,
-    agent_name: str,
 ) -> str:
-    prompt = f"{system}\n\n{user_text}".strip()
 
     def _run():
         gemini_model = _get_gemini_model(model)
-        with Image.open(image_path) as img:
+        if image_path and image_path.exists():
+            with Image.open(image_path) as img:
+                response = gemini_model.generate_content(
+                    [prompt, img],
+                    generation_config={"max_output_tokens": max_tokens},
+                )
+        else:
             response = gemini_model.generate_content(
-                [prompt, img],
+                prompt,
                 generation_config={"max_output_tokens": max_tokens},
             )
         return response.text
@@ -71,33 +71,27 @@ async def ask(
     agent_name: str = "unknown",
 ) -> str:
     """
-    Send a message to Claude (text) or Gemini (vision) and return the text response.
-    If image_path is provided, the request is sent to Gemini.
+    Send a message to Gemini (text or vision) and return the text response.
     """
-    if image_path and image_path.exists():
-        return await _ask_gemini(system, user_text, image_path, model, max_tokens, agent_name)
+    prompt = _build_prompt(system, user_text)
 
-    client = get_client()
-    model = model or config.CLAUDE_MODEL
+    selected_model = model
+    if not selected_model:
+        selected_model = (
+            config.GEMINI_VISION_MODEL if image_path else config.GEMINI_TEXT_MODEL
+        )
 
-    content: list = []
-    content.append({"type": "text", "text": user_text})
-
-    response = await client.messages.create(
-        model=model,
+    response_text = await _ask_gemini(
+        prompt,
+        image_path=image_path if image_path and image_path.exists() else None,
+        model=selected_model,
         max_tokens=max_tokens,
-        system=system,
-        messages=[{"role": "user", "content": content}],
     )
 
     if config.AGENT_LOG_TOKENS:
-        usage = response.usage
-        logger.info(
-            f"[{agent_name}] tokens – input: {usage.input_tokens}, "
-            f"output: {usage.output_tokens}"
-        )
+        logger.info(f"[{agent_name}] Gemini request completed.")
 
-    return response.content[0].text
+    return response_text
 
 
 async def ask_structured(
